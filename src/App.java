@@ -2,6 +2,8 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 
+import java.io.IOException;
+
 public class App {
     private static final String API_KEY = "YqmDwNyGMGtAvTh1QKN0Jf1RAht13iBq";
 
@@ -11,23 +13,30 @@ public class App {
 
     private static final String LOCATION_KEY = "294021";
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         var client = new OkHttpClient();
 
-        var url = HttpUrl.parse("http://dataservice.accuweather.com/forecasts/v1").newBuilder()
+        var uri = new HttpUrl.Builder()
+                .scheme("http")
+                .host("dataservice.accuweather.com")
+                .addPathSegment("forecasts")
+                .addPathSegment("v1")
                 .addPathSegment(FORECAST_TYPE)
                 .addPathSegment(FORECAST_PERIOD)
                 .addPathSegment(LOCATION_KEY)
                 .addQueryParameter("apikey", API_KEY)
                 .build();
-        System.out.println(url);
+        System.out.println(uri);
 
         var request = new Request.Builder()
-                .url(url)
+                .url(uri)
                 .build();
 
         try (var response = client.newCall(request).execute()) {
-            System.out.println(response.body().string());
+            var body = response.body();
+            if (body != null) {
+                System.out.println(body.string());
+            }
         }
     }
 }
